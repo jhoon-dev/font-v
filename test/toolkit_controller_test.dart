@@ -16,10 +16,15 @@ class ToolkitFonts extends FontService {
       ),
   ];
   Completer<Set<String>>? coverageGate;
+  bool catalogUnavailable = false;
   @override
   bool get isDemo => false;
   @override
-  Future<List<FontFace>> loadFonts() async => List.of(entries);
+  Future<List<FontFace>> loadFonts() async {
+    if (catalogUnavailable) throw StateError('Catalog unavailable');
+    return List.of(entries);
+  }
+
   @override
   Future<Set<String>> hangulFonts() =>
       coverageGate?.future ?? Future.value({'b'});
@@ -121,6 +126,57 @@ void main() {
       c.dispose();
     },
   );
+  test('import survives a failed catalog read and Hangul scan', () async {
+    final service = ToolkitFonts();
+    final c = FontController(service: service);
+    addTearDown(c.dispose);
+    await c.initialize();
+    await c.setHangulOnly(true);
+    service.catalogUnavailable = true;
+    final scan = Completer<Set<String>>();
+    service.coverageGate = scan;
+    final imported = c.importFont(Uint8List(1), 'example.ttf');
+    await Future<void>.delayed(Duration.zero);
+    expect(c.hangulLoading, true);
+    scan.completeError(StateError('Coverage unavailable'));
+
+    final face = await imported;
+    expect(service.entries, contains(face));
+    expect(c.hangulOnly, false);
+    expect(c.hangulLoading, false);
+    expect(c.visibleFonts.last.id, face.id);
+    expect((await c.importFont(Uint8List(1), 'renamed.ttf')).id, face.id);
+    expect(c.fonts.where((font) => font.id == face.id), hasLength(1));
+  });
+
+  test(
+    'removal clears saved references with the catalog unavailable',
+    () async {
+      final service = ToolkitFonts();
+      final c = FontController(service: service);
+      addTearDown(c.dispose);
+      await c.initialize();
+      final face = await c.importFont(Uint8List(1), 'example.ttf');
+      final collection = c.createCollection('Body')!;
+      c.toggleFavorite(face.id);
+      c.toggleComparison(face.id);
+      c.setCollectionMembership(collection, face.id, true);
+      service.catalogUnavailable = true;
+
+      await c.removeImportedFont(face.id);
+      await c.flushSettings();
+
+      expect(service.entries, isNot(contains(face)));
+      expect(c.fonts.map((font) => font.id), ['a', 'b', 'c', 'd', 'e']);
+      expect(c.comparisonIds, isEmpty);
+      final restored = FontController(service: service);
+      addTearDown(restored.dispose);
+      await restored.initialize();
+      expect(restored.favorites, isEmpty);
+      expect(restored.collections.single.fontIds, isEmpty);
+    },
+  );
+
   test(
     'cancelled glyph scan cannot reactivate filter or hide the catalog later',
     () async {

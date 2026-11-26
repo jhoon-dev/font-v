@@ -653,7 +653,7 @@ abstract class AppLocalizations {
   /// No description provided for @deviceFeature.
   ///
   /// In en, this message translates to:
-  /// **'Available in the iOS and Android apps.'**
+  /// **'Available in the iOS, Android, Windows, and macOS apps.'**
   String get deviceFeature;
 
   /// No description provided for @letterSpacing.

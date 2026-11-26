@@ -51,9 +51,9 @@ jobs:
           FONTV_TEST_ADS: ${{ inputs.ads_mode != 'live' }}
         run: |
           [[ "$FONTV_BUILD_NUMBER" =~ ^[0-9]+$ ]] || exit 1
-          flutter build appbundle --release --build-name=2.0.0 --build-number="$FONTV_BUILD_NUMBER" --dart-define=USE_TEST_ADS="$FONTV_TEST_ADS"
+          flutter build appbundle --release --build-number="$FONTV_BUILD_NUMBER" --dart-define=USE_TEST_ADS="$FONTV_TEST_ADS"
           jarsigner -verify build/app/outputs/bundle/release/app-release.aab
-          flutter build apk --release --build-name=2.0.0 --build-number="$FONTV_BUILD_NUMBER" --dart-define=USE_TEST_ADS="$FONTV_TEST_ADS"
+          flutter build apk --release --build-number="$FONTV_BUILD_NUMBER" --dart-define=USE_TEST_ADS="$FONTV_TEST_ADS"
           mkdir -p artifacts
           cp build/app/outputs/flutter-apk/app-release.apk artifacts/smoke.apk
       - name: Enable emulator acceleration

@@ -268,11 +268,7 @@ class Catalog {
     const auto height = static_cast<float>(std::clamp(Number(args, "height", 1), 1.0, 1600.0));
     const auto scale = static_cast<float>(std::clamp(Number(args, "scale", 2), 1.0, 3.0));
     const auto size = static_cast<float>(std::clamp(Number(args, "size", 32), 8.0, 120.0));
-    auto text = Wide(String(args, "text"));
-    if (text.size() > 1000) {
-      text.resize(1000);
-      if (text.back() >= 0xd800 && text.back() <= 0xdbff) text.pop_back();
-    }
+    const auto text = Wide(String(args, "text"));
     ComPtr<IDWriteTextFormat> format;
     Check(factory_->CreateTextFormat(font.family.c_str(), font.collection.Get(), font.font->GetWeight(),
           font.font->GetStyle(), font.font->GetStretch(), size, L"en-us", &format));

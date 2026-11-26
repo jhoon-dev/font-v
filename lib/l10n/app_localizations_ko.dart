@@ -305,7 +305,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get coverageError => '문자 지원 여부를 확인하지 못했습니다. 다시 시도해 주세요.';
 
   @override
-  String get deviceFeature => 'iOS·Android 앱에서 사용할 수 있습니다.';
+  String get deviceFeature => 'iOS·Android·Windows·macOS 앱에서 사용할 수 있습니다.';
 
   @override
   String get letterSpacing => '자간';

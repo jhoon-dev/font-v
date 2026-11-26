@@ -314,7 +314,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get coverageError => 'Could not check character support. Try again.';
 
   @override
-  String get deviceFeature => 'Available in the iOS and Android apps.';
+  String get deviceFeature =>
+      'Available in the iOS, Android, Windows, and macOS apps.';
 
   @override
   String get letterSpacing => 'Letter spacing';

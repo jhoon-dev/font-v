@@ -159,7 +159,7 @@
   "coverageMissing": "Missing characters (a fallback font may be used)",
   "coverageHelp": "Checks the font’s own character map, before fallback. This does not guarantee shaping of every character sequence.",
   "coverageError": "Could not check character support. Try again.",
-  "deviceFeature": "Available in the iOS and Android apps.",
+  "deviceFeature": "Available in the iOS, Android, Windows, and macOS apps.",
   "letterSpacing": "Letter spacing",
   "lineHeight": "Line height",
   "alignment": "Alignment",

@@ -159,7 +159,7 @@
   "coverageMissing": "지원하지 않는 문자 · 대체 폰트로 표시될 수 있습니다",
   "coverageHelp": "대체 폰트를 사용하기 전, 해당 폰트 자체의 문자 지원을 확인합니다. 모든 문자 조합의 모양을 보장하지는 않습니다.",
   "coverageError": "문자 지원 여부를 확인하지 못했습니다. 다시 시도해 주세요.",
-  "deviceFeature": "iOS·Android 앱에서 사용할 수 있습니다.",
+  "deviceFeature": "iOS·Android·Windows·macOS 앱에서 사용할 수 있습니다.",
   "letterSpacing": "자간",
   "lineHeight": "줄 간격",
   "alignment": "정렬",

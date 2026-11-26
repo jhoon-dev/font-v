@@ -25,8 +25,11 @@ jobs:
       - name: Create test-signed MSIX
         shell: pwsh
         run: |
-          $fontvBuild = (Get-Content pubspec.yaml | Select-String '^version:').ToString().Split('+')[-1].Trim()
-          ./tool/build_windows_msix.ps1 -Mode test -Version "2.0.0.$fontvBuild"
+          $pubspec = Get-Content -Raw pubspec.yaml
+          $version = [regex]::Match($pubspec, '(?m)^version:[ \t]*(\d+\.\d+\.\d+)\+(\d+)[ \t]*\r?$')
+          if (!$version.Success) { throw 'Expected an app version and build number in pubspec.yaml' }
+          $msixVersion = "$($version.Groups[1].Value).$($version.Groups[2].Value)"
+          ./tool/build_windows_msix.ps1 -Mode test -Version $msixVersion
       # The Windows delivery artifact contains only MSIX and its public test
       # certificate. No EXE installer or portable application is distributed.
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9

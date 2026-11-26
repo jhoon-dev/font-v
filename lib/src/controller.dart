@@ -256,9 +256,17 @@ class FontController extends ChangeNotifier {
 
   Future<FontFace> importFont(Uint8List bytes, String filename) async {
     final face = await service.importFont(bytes, filename);
-    fonts = await service.loadFonts();
+    fonts = [...fonts.where((font) => font.id != face.id), face]
+      ..sort(FontFace.compareByFamilyAndName);
+    if (error == FontLoadIssue.empty) error = null;
     _hangulIds = null;
-    if (hangulOnly) await setHangulOnly(true);
+    if (hangulOnly) {
+      try {
+        await setHangulOnly(true);
+      } catch (_) {
+        // A failed scan has reset the filter. The font is already saved.
+      }
+    }
     _emit();
     return face;
   }
@@ -266,7 +274,7 @@ class FontController extends ChangeNotifier {
   Future<void> removeImportedFont(String id) async {
     if (!fonts.any((x) => x.id == id && x.imported)) return;
     await service.removeImportedFont(id);
-    fonts = await service.loadFonts();
+    fonts = fonts.where((font) => font.id != id).toList();
     favorites.remove(id);
     comparisonIds.remove(id);
     _hangulIds?.remove(id);

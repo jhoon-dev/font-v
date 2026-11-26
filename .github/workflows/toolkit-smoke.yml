@@ -1,12 +1,31 @@
 name: Font toolkit native checks
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'lib/**'
+      - 'android/**'
+      - 'ios/**'
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
+      - 'integration_test/toolkit_test.dart'
+      - 'test/fixtures/**'
+      - 'test_driver/integration_test.dart'
+      - 'tool/select_ios_simulator.py'
+      - '.github/workflows/toolkit-smoke.yml'
+      - '.github/actions/gradle-central-mirror/**'
   pull_request:
     paths:
       - 'lib/**'
       - 'android/**'
       - 'ios/**'
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
       - 'integration_test/toolkit_test.dart'
+      - 'test/fixtures/**'
+      - 'test_driver/integration_test.dart'
+      - 'tool/select_ios_simulator.py'
       - '.github/workflows/toolkit-smoke.yml'
       - '.github/actions/gradle-central-mirror/**'
 permissions:

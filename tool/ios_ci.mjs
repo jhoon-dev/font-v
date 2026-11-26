@@ -4,10 +4,11 @@ import os from 'node:os';
 import path from 'node:path';
 import {execFileSync} from 'node:child_process';
 import {createPrivateKey, sign, randomBytes, createHash} from 'node:crypto';
+import {appVersion as version} from './app_version.mjs';
 
 if (process.platform !== 'darwin') throw Error('macOS is required');
 if (process.env.NODE_OPTIONS || process.env.NODE_DEBUG || process.env.NODE_V8_COVERAGE || process.execArgv.some(v=>v.includes('inspect'))) throw Error('Private runtime required');
-const team='V6445K474Q', bundle='app.toolmoa.fontv', version='2.0.0';
+const team='V6445K474Q', bundle='app.toolmoa.fontv';
 const build=process.env.FONTV_BUILD_NUMBER || '11';
 const testAds=process.env.FONTV_TEST_ADS || 'true';
 if(!['true','false'].includes(testAds))throw Error('Invalid ads mode');

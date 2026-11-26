@@ -23,6 +23,11 @@ class FontFace {
     style: map['style'] as String? ?? 'Regular',
     imported: map['imported'] == true,
   );
+  static int compareByFamilyAndName(FontFace a, FontFace b) {
+    final byFamily = a.family.toLowerCase().compareTo(b.family.toLowerCase());
+    return byFamily == 0 ? a.name.compareTo(b.name) : byFamily;
+  }
+
   bool matches(String query) {
     final words = query.toLowerCase().trim().split(RegExp(r'\s+'));
     final haystack = '$name $family $style'.toLowerCase();
@@ -178,11 +183,7 @@ class FontService {
     final fonts = (rows ?? [])
         .map((row) => FontFace.fromMap(row as Map<Object?, Object?>))
         .toList();
-    fonts.sort(
-      (a, b) => a.family.toLowerCase().compareTo(b.family.toLowerCase()) != 0
-          ? a.family.toLowerCase().compareTo(b.family.toLowerCase())
-          : a.name.compareTo(b.name),
-    );
+    fonts.sort(FontFace.compareByFamilyAndName);
     return fonts;
   }
 

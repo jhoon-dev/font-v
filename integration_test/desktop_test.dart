@@ -12,6 +12,30 @@ import 'package:font_v/src/font_export.dart';
 import 'package:font_v/src/font_service.dart';
 import '../test/fixtures/font_fixture.dart';
 
+Future<ui.Image> _decodePng(Uint8List png) async {
+  final codec = await ui.instantiateImageCodec(png);
+  try {
+    return (await codec.getNextFrame()).image;
+  } finally {
+    codec.dispose();
+  }
+}
+
+Future<Uint8List> _pixelBytes(Uint8List png) async {
+  final image = await _decodePng(png);
+  try {
+    final pixels = (await image.toByteData(
+      format: ui.ImageByteFormat.rawRgba,
+    ))!;
+    return pixels.buffer.asUint8List(
+      pixels.offsetInBytes,
+      pixels.lengthInBytes,
+    );
+  } finally {
+    image.dispose();
+  }
+}
+
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   testWidgets('desktop native catalog, imports, coverage, PNG and wide UI', (
@@ -79,8 +103,7 @@ void main() {
     final plain = await service.render(request(0));
     final spaced = await service.render(request(4));
     expect(plain, isNot(orderedEquals(spaced)));
-    final codec = await ui.instantiateImageCodec(spaced);
-    final image = (await codec.getNextFrame()).image;
+    final image = await _decodePng(spaced);
     expect(image.width, 560);
     expect(image.height, 360);
     final pixels = (await image.toByteData(
@@ -90,7 +113,6 @@ void main() {
     expect(alphas.any((alpha) => alpha > 0), true);
     expect(alphas.any((alpha) => alpha == 0), true);
     image.dispose();
-    codec.dispose();
     final png = await FontImageExporter(service).render(
       face: face,
       request: request(4),
@@ -98,6 +120,38 @@ void main() {
       transparent: true,
     );
     expect(png.take(8), [137, 80, 78, 71, 13, 10, 26, 10]);
+    if (defaultTargetPlatform == TargetPlatform.windows) {
+      // 500 supplementary characters already occupy 1,000 UTF-16 units.
+      final prefix = List.filled(500, '😀').join();
+      PreviewRequest longRequest(String suffix) => PreviewRequest(
+        fontId: face.id,
+        text: '$prefix$suffix',
+        size: 12,
+        color: 0xff242329,
+        width: 540,
+        height: 360,
+      );
+      final withoutMarker = longRequest('');
+      final withMarker = longRequest('\nA');
+      final preview = await _pixelBytes(await service.render(withMarker));
+      final previewWithoutMarker = await _pixelBytes(
+        await service.render(withoutMarker),
+      );
+      expect(preview, isNot(orderedEquals(previewWithoutMarker)));
+      final exporter = FontImageExporter(service);
+      Future<Uint8List> export(PreviewRequest request) => exporter.render(
+        face: face,
+        request: request,
+        paper: Colors.white,
+        transparent: true,
+        includeInfo: false,
+      );
+      final exported = await _pixelBytes(await export(withMarker));
+      final exportedWithoutMarker = await _pixelBytes(
+        await export(withoutMarker),
+      );
+      expect(exported, isNot(orderedEquals(exportedWithoutMarker)));
+    }
     final controller = FontController(service: service);
     final ads = AdsController();
     expect(ads.supported, false);
